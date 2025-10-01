@@ -25,3 +25,4 @@ You can use these installed libraries if required.
 
 ## Misc
 - Do not use todoWrite as this is relatively a straightforward task, try complete it in one go of writeFile
+- You must add "use client" directive at the top of the line if you are using any client side libraries like framer-motion, recharts, etc.
