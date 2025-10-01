@@ -16,7 +16,7 @@
       },
       "devDependencies": {
         "@eslint/eslintrc": "^3",
-        "@getollie/cli": "0.0.2",
+        "@getollie/cli": "0.0.3",
         "@tailwindcss/postcss": "^4",
         "@types/node": "^20",
         "@types/react": "^19",
@@ -63,7 +63,7 @@
 
     "@eslint/plugin-kit": ["@eslint/plugin-kit@0.3.4", "", { "dependencies": { "@eslint/core": "^0.15.1", "levn": "^0.4.1" } }, "sha512-Ul5l+lHEcw3L5+k8POx6r74mxEYKG5kOb6Xpy2gCRW6zweT6TEhAf8vhxGgjhqrd/VO/Dirhsb+1hNpD1ue9hw=="],
 
-    "@getollie/cli": ["@getollie/cli@0.0.2", "", { "dependencies": { "@commander-js/extra-typings": "^14.0.0", "commander": "^14.0.1" }, "peerDependencies": { "typescript": "^5" }, "bin": { "ollie": "src/cli.ts" } }, "sha512-rd2OzXJb72Gskhhq/Xyp7mnZOTXMKsB01GjxmuRW/X+ieFVm/bPAQmwCQ51XEQGWg07Z7/dy0yVZHtRFGHnZ6w=="],
+    "@getollie/cli": ["@getollie/cli@0.0.3", "", { "dependencies": { "@commander-js/extra-typings": "^14.0.0", "commander": "^14.0.1" }, "peerDependencies": { "typescript": "^5" }, "bin": { "ollie": "src/cli.ts" } }, "sha512-BsiePCOANzMTfzWPrWBagHp34ANfD6cMaCdLagQSjXvO8SKzoZgptS95hFn/oxb7f2GkYI9ydFYpkR/3LClN6g=="],
 
     "@humanfs/core": ["@humanfs/core@0.19.1", "", {}, "sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA=="],
 
