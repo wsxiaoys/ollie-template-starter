@@ -1,22 +1,27 @@
 #!/bin/bash
 
-export POCHI_LIVEKIT_NO_SYNC=1
+PROMPT="$1"
 
-pochi -p "$1" --model google/gemini-2.5-pro
+if [ -z "$PROMPT" ]; then
+  echo "Usage: $0 <prompt>"
+  exit 1
+fi
 
-bun dev &
-
-echo "Started dev server with PID: $PID"
-
-killDevServer() {
-  echo "Killing dev server"
-  pkill -P $$
-  clear
+run() {
+pochi -p "$PROMPT" --model google/gemini-2.5-pro
 }
 
-trap killDevServer SIGINT SIGTERM
+eval() {
+bun dev &> logs/dev.log &
+bun ollie -u http://localhost:3000 -d $PWD -q "$PROMPT" -- --model google/gemini-2.5-pro --stream-json > logs/ollie.log
+tail -n 1 logs/ollie.log | jq '.parts[] | select(.type == "tool-attemptCompletion") | .input.result' -r | jq
+}
 
-bun ollie -u http://localhost:3000 -d $PWD -q "$1" -- --model google/gemini-2.5-pro &> ollie.log
+killDevServer() {
+  pkill -P $$
+}
 
-# Extract content after TaskCompleted
-grep -A 1000000000 "Task Completed" ollie.log | tail -n +2
+trap killDevServer SIGINT SIGTERM EXIT
+
+run
+eval
