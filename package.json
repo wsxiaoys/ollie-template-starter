@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@getollie/cli": "https://github.com/wsxiaoys/ollie",
     "@react-three/drei": "^10.7.6",
     "@react-three/fiber": "^9.3.0",
     "framer-motion": "^12.23.22",
@@ -22,7 +21,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@getollie/cli": "0.0.5",
+    "@getollie/cli": "https://github.com/wsxiaoys/ollie",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
