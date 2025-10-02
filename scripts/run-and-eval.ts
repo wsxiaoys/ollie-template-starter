@@ -4,12 +4,45 @@ import { $, type Subprocess } from "bun";
 import { existsSync, mkdirSync } from "fs";
 import { join } from "path";
 
-const prompt = process.argv[2];
+// Parse command line arguments
+const args = process.argv.slice(2);
+let prompt: string | undefined;
+let runOnly = false;
+let evalOnly = false;
 
-if (!prompt) {
-  console.error("Usage: ./scripts/run-and-eval.ts <prompt>");
+for (let i = 0; i < args.length; i++) {
+  if (args[i] === '--run-only' || args[i] === '-r') {
+    runOnly = true;
+  } else if (args[i] === '--eval-only' || args[i] === '-e') {
+    evalOnly = true;
+  } else if (args[i] === '--help' || args[i] === '-h') {
+    console.log("Usage: ./scripts/run-and-eval.ts [options] <prompt>");
+    console.log("Options:");
+    console.log("  --run-only, -r    Run only the 'run' step (no eval)");
+    console.log("  --eval-only, -e   Run only the 'eval' step (no run)");
+    console.log("  --help, -h        Show this help message");
+    process.exit(0);
+  } else if (!prompt) {
+    prompt = args[i];
+  }
+}
+
+// Validate arguments
+if (!prompt && !runOnly && !evalOnly) {
+  console.error("Usage: ./scripts/run-and-eval.ts [options] <prompt>");
+  console.error("Use --help for more information");
   process.exit(1);
 }
+
+// If both runOnly and evalOnly are specified, it's equivalent to running both
+if (runOnly && evalOnly) {
+  runOnly = false;
+  evalOnly = false;
+}
+
+// If neither runOnly nor evalOnly is specified, run both by default
+const runStep = runOnly || (!runOnly && !evalOnly);
+const evalStep = evalOnly || (!runOnly && !evalOnly);
 
 const logsDir = join(process.cwd(), "logs");
 const devServerLogPath = join(logsDir, "dev-server.log");
@@ -50,7 +83,7 @@ process.on("SIGINT", () => handleSignal("SIGINT"));
 process.on("SIGTERM", () => handleSignal("SIGTERM"));
 
 const run = async (): Promise<void> => {
-  await $`pochi -p ${prompt} --model google/gemini-2.5-pro`;
+  await $`pochi -p ${prompt!} --model google/gemini-2.5-pro`;
 };
 
 const processOllieLog = async (ollieLogPath: string): Promise<void> => {
@@ -114,9 +147,14 @@ const evalCommand = async (): Promise<void> => {
 
 const main = async (): Promise<void> => {
   try {
-    await run();
-    await evalCommand();
-    await processOllieLog(ollieLogPath);
+    if (runStep) {
+      await run();
+    }
+    
+    if (evalStep) {
+      await evalCommand();
+      await processOllieLog(ollieLogPath);
+    }
 
   } catch (error) {
     console.error("Error:", error);
