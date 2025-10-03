@@ -28,8 +28,8 @@ const options = program.opts();
 const prompt = program.args[0];
 
 // Validate arguments
-if (!prompt && !options.runOnly && !options.evalOnly) {
-  console.error("Error: prompt argument is required unless using --eval-only");
+if (!prompt) {
+  console.error("Error: prompt argument is required");
   program.help();
 }
 
