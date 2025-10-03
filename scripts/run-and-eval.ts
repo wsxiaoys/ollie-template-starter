@@ -9,18 +9,22 @@ const args = process.argv.slice(2);
 let prompt: string | undefined;
 let runOnly = false;
 let evalOnly = false;
+let model = "google/gemini-2.5-pro";
 
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '--run-only' || args[i] === '-r') {
     runOnly = true;
   } else if (args[i] === '--eval-only' || args[i] === '-e') {
     evalOnly = true;
+  } else if (args[i] === '--model' || args[i] === '-m') {
+    model = args[++i];
   } else if (args[i] === '--help' || args[i] === '-h') {
     console.log("Usage: ./scripts/run-and-eval.ts [options] <prompt>");
     console.log("Options:");
-    console.log("  --run-only, -r    Run only the 'run' step (no eval)");
-    console.log("  --eval-only, -e   Run only the 'eval' step (no run)");
-    console.log("  --help, -h        Show this help message");
+    console.log("  --run-only, -r       Run only the 'run' step (no eval)");
+    console.log("  --eval-only, -e      Run only the 'eval' step (no run)");
+    console.log("  --model, -m <model>  Override the model to use (default: google/gemini-2.5-pro)");
+    console.log("  --help, -h           Show this help message");
     process.exit(0);
   } else if (!prompt) {
     prompt = args[i];
@@ -83,7 +87,7 @@ process.on("SIGINT", () => handleSignal("SIGINT"));
 process.on("SIGTERM", () => handleSignal("SIGTERM"));
 
 const run = async (): Promise<void> => {
-  await $`pochi -p ${prompt!} --model google/gemini-2.5-pro`;
+  await $`pochi -p ${prompt!} --model ${model}`;
 };
 
 const processOllieLog = async (ollieLogPath: string): Promise<void> => {
@@ -138,7 +142,7 @@ const evalCommand = async (): Promise<void> => {
   $`echo Starting ollie evaluation... 2>&1`
 
   const ollieResult =
-    await $`bun ollie -u "http://localhost:3000" -d ${process.cwd()} -q ${prompt} -- --model google/gemini-2.5-pro --stream-json > ${Bun.file(ollieLogPath)}`.nothrow();
+    await $`bun ollie -u "http://localhost:3000" -d ${process.cwd()} -q ${prompt} -- --model ${model} --stream-json > ${Bun.file(ollieLogPath)}`.nothrow();
 
   if (ollieResult.exitCode !== 0) {
     throw new Error(`ollie process exited with code ${ollieResult.exitCode}`);
