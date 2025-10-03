@@ -15,6 +15,7 @@
         "three": "^0.180.0",
       },
       "devDependencies": {
+        "@commander-js/extra-typings": "^14.0.0",
         "@eslint/eslintrc": "^3",
         "@getollie/cli": "https://github.com/wsxiaoys/ollie",
         "@tailwindcss/postcss": "^4",
@@ -22,6 +23,8 @@
         "@types/node": "^20",
         "@types/react": "^19",
         "@types/react-dom": "^19",
+        "commander": "^14.0.1",
+        "commander-js": "^0.0.1-security",
         "eslint": "^9",
         "eslint-config-next": "15.4.4",
         "tailwindcss": "^4",
@@ -403,6 +406,8 @@
     "color-string": ["color-string@1.9.1", "", { "dependencies": { "color-name": "^1.0.0", "simple-swizzle": "^0.2.2" } }, "sha512-shrVawQFojnZv6xM40anx4CkoDP+fZsw/ZerEMsW/pyzsRbElpsL/DBVW7q3ExxwusdNXI3lXpuhEZkzs8p5Eg=="],
 
     "commander": ["commander@14.0.1", "", {}, "sha512-2JkV3gUZUVrbNA+1sjBOYLsMZ5cEEl8GTFP2a4AVz5hvasAMCQ1D2l2le/cX+pV4N6ZU17zjUahLpIXRrnWL8A=="],
+
+    "commander-js": ["commander-js@0.0.1-security", "", {}, "sha512-OW7fC8kIkcPSh2pOlrkadPk7rTHZdfx7nk/TUKuhdywP4XByYwQE8vu3N3yJMFcdL8Y6/n8cedXMuD2uXnXt0Q=="],
 
     "concat-map": ["concat-map@0.0.1", "", {}, "sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg=="],
 

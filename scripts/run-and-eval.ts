@@ -1,44 +1,42 @@
 #!/usr/bin/env bun
 
+import { Command } from "@commander-js/extra-typings";
 import { $, type Subprocess } from "bun";
 import { existsSync, mkdirSync } from "fs";
 import { join } from "path";
 
-// Parse command line arguments
-const args = process.argv.slice(2);
-let prompt: string | undefined;
-let runOnly = false;
-let evalOnly = false;
-let model = "google/gemini-2.5-pro";
+const program = new Command()
+  .name("run-and-eval")
+  .description("Run pochi and evaluate the result with ollie")
+  .version("1.0.0")
+  .argument("[prompt]", "The prompt to run")
+  .option("-r, --run-only", "Run only the 'run' step (no eval)", false)
+  .option("-e, --eval-only", "Run only the 'eval' step (no run)", false)
+  .option(
+    "-m, --model <model>",
+    "Override the model to use",
+    "google/gemini-2.5-pro"
+  )
+  .option(
+    "-p, --port <port>",
+    "Port for the dev server",
+    "3000"
+  )
+  .parse(process.argv);
 
-for (let i = 0; i < args.length; i++) {
-  if (args[i] === '--run-only' || args[i] === '-r') {
-    runOnly = true;
-  } else if (args[i] === '--eval-only' || args[i] === '-e') {
-    evalOnly = true;
-  } else if (args[i] === '--model' || args[i] === '-m') {
-    model = args[++i];
-  } else if (args[i] === '--help' || args[i] === '-h') {
-    console.log("Usage: ./scripts/run-and-eval.ts [options] <prompt>");
-    console.log("Options:");
-    console.log("  --run-only, -r       Run only the 'run' step (no eval)");
-    console.log("  --eval-only, -e      Run only the 'eval' step (no run)");
-    console.log("  --model, -m <model>  Override the model to use (default: google/gemini-2.5-pro)");
-    console.log("  --help, -h           Show this help message");
-    process.exit(0);
-  } else if (!prompt) {
-    prompt = args[i];
-  }
-}
+const options = program.opts();
+const prompt = program.args[0];
 
 // Validate arguments
-if (!prompt && !runOnly && !evalOnly) {
-  console.error("Usage: ./scripts/run-and-eval.ts [options] <prompt>");
-  console.error("Use --help for more information");
-  process.exit(1);
+if (!prompt && !options.runOnly && !options.evalOnly) {
+  console.error("Error: prompt argument is required unless using --eval-only");
+  program.help();
 }
 
 // If both runOnly and evalOnly are specified, it's equivalent to running both
+let runOnly = options.runOnly;
+let evalOnly = options.evalOnly;
+
 if (runOnly && evalOnly) {
   runOnly = false;
   evalOnly = false;
@@ -87,7 +85,7 @@ process.on("SIGINT", () => handleSignal("SIGINT"));
 process.on("SIGTERM", () => handleSignal("SIGTERM"));
 
 const run = async (): Promise<void> => {
-  await $`pochi -p ${prompt!} --model ${model}`;
+  await $`pochi -p ${prompt!} --model ${options.model}`;
 };
 
 const processOllieLog = async (ollieLogPath: string): Promise<void> => {
@@ -133,7 +131,7 @@ const processOllieLog = async (ollieLogPath: string): Promise<void> => {
 const evalCommand = async (): Promise<void> => {
   $`echo Starting dev server... 2>&1`
   devServerProcess = Bun.spawn({
-    cmd: ["bun", "dev"],
+    cmd: ["bun", "dev", "--port", options.port],
     cwd: process.cwd(),
     stdout: Bun.file(devServerLogPath),
     stderr: Bun.file(devServerLogPath),
@@ -142,7 +140,7 @@ const evalCommand = async (): Promise<void> => {
   $`echo Starting ollie evaluation... 2>&1`
 
   const ollieResult =
-    await $`bun ollie -u "http://localhost:3000" -d ${process.cwd()} -q ${prompt} -- --model ${model} --stream-json > ${Bun.file(ollieLogPath)}`.nothrow();
+    await $`bun ollie -u "http://localhost:${options.port}" -d ${process.cwd()} -q ${prompt} -- --model ${options.model} --stream-json > ${Bun.file(ollieLogPath)}`.nothrow();
 
   if (ollieResult.exitCode !== 0) {
     throw new Error(`ollie process exited with code ${ollieResult.exitCode}`);

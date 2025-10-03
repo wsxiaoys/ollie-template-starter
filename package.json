@@ -20,6 +20,7 @@
     "three": "^0.180.0"
   },
   "devDependencies": {
+    "@commander-js/extra-typings": "^14.0.0",
     "@eslint/eslintrc": "^3",
     "@getollie/cli": "https://github.com/wsxiaoys/ollie",
     "@tailwindcss/postcss": "^4",
@@ -27,6 +28,8 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "commander": "^14.0.1",
+    "commander-js": "^0.0.1-security",
     "eslint": "^9",
     "eslint-config-next": "15.4.4",
     "tailwindcss": "^4",
