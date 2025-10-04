@@ -54,6 +54,7 @@ const evalStep = evalOnly || (!runOnly && !evalOnly);
 const logsDir = join(process.cwd(), "logs");
 const devServerLogPath = join(logsDir, "dev-server.log");
 const ollieLogPath = join(logsDir, "ollie.log");
+const completionOutputPath = join(logsDir, "output.json");
 const screenshotPath = join(logsDir, "screenshot.jpg");
 
 if (!existsSync(logsDir)) {
@@ -113,7 +114,7 @@ const processOllieLog = async (ollieLogPath: string): Promise<void> => {
     const attemptCompletionResult = attemptCompletionPart?.input?.result;
 
     if (attemptCompletionResult) {
-      console.log(attemptCompletionResult)
+      await Bun.write(Bun.file(completionOutputPath), attemptCompletionResult);
     }
 
     const screenshotPart = parsed.parts.find(
@@ -169,4 +170,4 @@ const main = async (): Promise<void> => {
   }
 };
 
-void main();
+await main();
