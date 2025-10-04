@@ -113,9 +113,7 @@ const processOllieLog = async (ollieLogPath: string): Promise<void> => {
     const attemptCompletionResult = attemptCompletionPart?.input?.result;
 
     if (attemptCompletionResult) {
-      console.log(
-        JSON.stringify(JSON.parse(attemptCompletionResult), null, 2),
-      );
+      console.log(attemptCompletionResult)
     }
 
     const screenshotPart = parsed.parts.find(
