@@ -53,6 +53,8 @@ const evalStep = evalOnly || (!runOnly && !evalOnly);
 
 const logsDir = join(process.cwd(), "logs");
 const devServerLogPath = join(logsDir, "dev-server.log");
+const pochiLogPath = join(logsDir, "pochi.log");
+const ollieInstructionPath = join(logsDir, "ollie-instruction.md");
 const ollieLogPath = join(logsDir, "ollie.log");
 const completionOutputPath = join(logsDir, "output.json");
 const screenshotPath = join(logsDir, "screenshot.jpg");
@@ -91,7 +93,7 @@ process.on("SIGINT", () => handleSignal("SIGINT"));
 process.on("SIGTERM", () => handleSignal("SIGTERM"));
 
 const run = async (): Promise<void> => {
-  await $`pochi -p ${prompt!} --model ${options.model}`;
+  await $`pochi -p ${prompt!} --model ${options.model} --no-mcp &> ${pochiLogPath}`;
 };
 
 const processOllieLog = async (ollieLogPath: string): Promise<void> => {
@@ -144,7 +146,7 @@ const evalCommand = async (): Promise<void> => {
   $`echo Starting ollie evaluation... 2>&1`
 
   const strictChecklistFlag = options.strictChecklist ? "--strict-checklist" : "";
-  const ollieResult = await $`bun ollie -u "http://localhost:${options.port}" -d ${process.cwd()} -q ${prompt} ${strictChecklistFlag} -- --model ${options.model} --stream-json > ${Bun.file(ollieLogPath)}`.nothrow();
+  const ollieResult = await $`bun ollie -u "http://localhost:${options.port}" -d ${process.cwd()} -q ${prompt} ${strictChecklistFlag} --log-instructions ${ollieInstructionPath} -- --model ${options.model} --stream-json > ${Bun.file(ollieLogPath)}`.nothrow();
 
   if (ollieResult.exitCode !== 0) {
     throw new Error(`ollie process exited with code ${ollieResult.exitCode}`);

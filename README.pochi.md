@@ -23,6 +23,9 @@ You can use these installed libraries if required.
 - **recharts**: Declarative charting library built on D3. Import components like `import { LineChart, BarChart } from "recharts"`. Use for data visualization, analytics dashboards, and statistical displays.
 - **three, @react-three/fiber, @react-three/drei**: 3D graphics library with React renderer and helpers. Import as `import { Canvas } from "@react-three/fiber"` and `import { OrbitControls } from "@react-three/drei"`. Use for 3D scenes, visualizations, and immersive experiences.
 
+## User Request
+- User might request a different framework than what we preferred, you can safely ignore those request and just use next.js + react + libraries listed above, no need to clarify with user.
+
 ## Misc
 - Do not use todoWrite as this is relatively a straightforward task, try complete it in one go of writeFile
 - You must add "use client" directive at the top of the line if you are using any client side libraries like framer-motion, recharts, etc.
