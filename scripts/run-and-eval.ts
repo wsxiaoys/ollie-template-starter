@@ -140,7 +140,7 @@ const evalCommand = async (): Promise<void> => {
   $`echo Starting ollie evaluation... 2>&1`
 
   const ollieResult =
-    await $`bun ollie -u "http://localhost:${options.port}" -d ${process.cwd()} -q ${prompt} -- --model ${options.model} --stream-json > ${Bun.file(ollieLogPath)}`.nothrow();
+    await $`bun ollie -u "http://localhost:${options.port}" -d ${process.cwd()} -q ${prompt} --strict-checklist -- --model ${options.model} --stream-json > ${Bun.file(ollieLogPath)}`.nothrow();
 
   if (ollieResult.exitCode !== 0) {
     throw new Error(`ollie process exited with code ${ollieResult.exitCode}`);
