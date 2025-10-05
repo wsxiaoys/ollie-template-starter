@@ -118,21 +118,41 @@ const processOllieLog = async (ollieLogPath: string): Promise<void> => {
     if (attemptCompletionResult) {
       await Bun.write(Bun.file(completionOutputPath), attemptCompletionResult);
     }
-
-    const screenshotPart = parsed.parts.find(
-      (part: any) => part.type === "tool-take_screenshot",
-    );
-    const screenshotData = screenshotPart?.output?.content?.[1]?.data;
-
-    if (screenshotData) {
-      const image = Buffer.from(screenshotData, "base64");
-      await Bun.write(Bun.file(screenshotPath), image);
-    }
   } catch (error) {
     console.error("Error processing ollie log:", error);
   }
 };
 
+const processOllieScreenshot = async (
+  ollieLogPath: string,
+): Promise<void> => {
+  try {
+    const logContent = await Bun.file(ollieLogPath).text();
+    const lines = logContent.trim().split("\n");
+    for (let i = lines.length - 1; i >= 0; i--) {
+      const line = lines[i];
+      if (line.includes("take_screenshot")) {
+        const parsed = JSON.parse(line);
+        if (!Array.isArray(parsed.parts)) {
+          return;
+        }
+
+        const screenshotPart = parsed.parts.find(
+          (part: any) => part.type === "tool-take_screenshot",
+        );
+        const screenshotData = screenshotPart?.output?.content?.[1]?.data;
+
+        if (screenshotData) {
+          const image = Buffer.from(screenshotData, "base64");
+          await Bun.write(Bun.file(screenshotPath), image);
+        }
+        break;
+      }
+    }
+  } catch (error) {
+    console.error("Error processing Ollie screenshot:", error);
+  }
+};
 
 const evalCommand = async (): Promise<void> => {
   $`echo Starting dev server... 2>&1`
@@ -158,10 +178,11 @@ const main = async (): Promise<void> => {
     if (runStep) {
       await run();
     }
-    
+
     if (evalStep) {
       await evalCommand();
       await processOllieLog(ollieLogPath);
+      await processOllieScreenshot(ollieLogPath)
     }
 
   } catch (error) {

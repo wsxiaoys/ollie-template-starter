@@ -1,103 +1,99 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React from 'react';
+import { ScatterChart, Scatter, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
+import { motion } from 'framer-motion';
+import { MapPin } from 'lucide-react';
+
+const cityData = [
+  { name: 'Urumqi', x: 15, y: 70 },
+  { name: 'Lhasa', x: 28, y: 30 },
+  { name: 'Chengdu', x: 42, y: 35 },
+  { name: 'Xi\'an', x: 53, y: 45 },
+  { name: 'Beijing', x: 68, y: 70 },
+  { name: 'Harbin', x: 80, y: 85 },
+  { name: 'Shanghai', x: 80, y: 40 },
+  { name: 'Guangzhou', x: 63, y: 15 },
+  { name: 'Hong Kong', x: 65, y: 12 },
+  { name: 'Taipei', x: 82, y: 25 },
+  { name: 'Wuhan', x: 62, y: 38},
+];
+
+const CustomTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="p-2 bg-gray-800 text-white rounded-md shadow-lg border border-gray-600">
+        <p className="font-bold">{payload[0].payload.name}</p>
+      </div>
+    );
+  }
+  return null;
+};
+
+const renderCustomDot = (props: any) => {
+  const { cx, cy, payload } = props;
+  const isMajorCity = ['Beijing', 'Shanghai', 'Guangzhou'].includes(payload.name);
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <g>
+      <motion.circle
+        cx={cx}
+        cy={cy}
+        r={isMajorCity ? 8 : 5}
+        fill={isMajorCity ? 'rgba(59, 130, 246, 0.7)' : 'rgba(13, 189, 156, 0.7)'}
+        stroke={isMajorCity ? '#3B82F6' : '#0DBD9C'}
+        strokeWidth={2}
+        initial={{ r: 0, opacity: 0 }}
+        animate={{ r: isMajorCity ? 8 : 5, opacity: 1 }}
+        transition={{ duration: 0.5, delay: Math.random() * 0.5 }}
+      />
+    </g>
+  );
+};
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+export default function ChinaMapPage() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4 overflow-hidden">
+       <div className="absolute inset-0 z-0 opacity-10">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500 rounded-full filter blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-500 rounded-full filter blur-3xl"></div>
+      </div>
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="text-center mb-8 z-10"
+      >
+        <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-teal-300">
+          National Map of China
+        </h1>
+        <p className="text-lg text-gray-400 mt-2">A conceptual representation of major cities</p>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.7, delay: 0.3 }}
+        className="w-full max-w-4xl h-[60vh] bg-gray-800/30 rounded-xl shadow-2xl border border-gray-700 p-4 backdrop-blur-sm z-10"
+      >
+        <ResponsiveContainer width="100%" height="100%">
+          <ScatterChart
+            margin={{
+              top: 30,
+              right: 30,
+              bottom: 30,
+              left: 30,
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+            <XAxis type="number" dataKey="x" hide domain={[0, 100]} />
+            <YAxis type="number" dataKey="y" hide domain={[0, 100]} />
+            <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3', stroke: '#4A5568' }} />
+            <Scatter name="Cities" data={cityData} fill="#8884d8" shape={renderCustomDot}>
+                <LabelList dataKey="name" position="top" offset={10} className="fill-gray-400 text-xs" />
+            </Scatter>
+          </ScatterChart>
+        </ResponsiveContainer>
+      </motion.div>
     </div>
   );
 }
