@@ -22,11 +22,6 @@ const program = new Command()
     "Port for the dev server",
     "3000"
   )
-  .option(
-    "--strict-checklist",
-    "Enable strict checklist mode for ollie evaluation",
-    true
-  )
   .parse(process.argv);
 
 const options = program.opts();
@@ -165,8 +160,7 @@ const evalCommand = async (): Promise<void> => {
 
   $`echo Starting ollie evaluation... 2>&1`
 
-  const strictChecklistFlag = options.strictChecklist ? "--strict-checklist" : "";
-  const ollieResult = await $`bun ollie -u "http://localhost:${options.port}" -d ${process.cwd()} -q ${prompt} ${strictChecklistFlag} --log-instructions ${ollieInstructionPath} -- --model ${options.model} --stream-json > ${Bun.file(ollieLogPath)}`.nothrow();
+  const ollieResult = await $`bun ollie -u "http://localhost:${options.port}" -d ${process.cwd()} -q ${prompt} --log-instructions ${ollieInstructionPath} -- --model ${options.model} --stream-json > ${Bun.file(ollieLogPath)}`.nothrow();
 
   if (ollieResult.exitCode !== 0) {
     throw new Error(`ollie process exited with code ${ollieResult.exitCode}`);
