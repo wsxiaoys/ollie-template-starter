@@ -140,8 +140,8 @@ const processOllieScreenshot = async (
         if (screenshotData) {
           const image = Buffer.from(screenshotData, "base64");
           await Bun.write(Bun.file(screenshotPath), image);
+          break;
         }
-        break;
       }
     }
   } catch (error) {
