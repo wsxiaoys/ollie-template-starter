@@ -88,7 +88,7 @@ process.on("SIGINT", () => handleSignal("SIGINT"));
 process.on("SIGTERM", () => handleSignal("SIGTERM"));
 
 const run = async (): Promise<void> => {
-  await $`pochi -p ${prompt!} --model ${options.model} --no-mcp &> ${pochiLogPath}`;
+  await $`pochi -p ${prompt!} --model ${options.model} --no-mcp --stream-json > ${pochiLogPath}`;
 };
 
 const processOllieLog = async (ollieLogPath: string): Promise<void> => {
