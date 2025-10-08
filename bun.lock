@@ -153,7 +153,7 @@
 
     "@eslint/plugin-kit": ["@eslint/plugin-kit@0.4.0", "", { "dependencies": { "@eslint/core": "^0.16.0", "levn": "^0.4.1" } }, "sha512-sB5uyeq+dwCWyPi31B2gQlVlo+j5brPlWx4yZBrEaRo/nhdDE8Xke1gsGgtiBdaBTxuTkceLVuVt/pclrasb0A=="],
 
-    "@getollie/cli": ["@getollie/cli@github:wsxiaoys/ollie#063bb27", { "dependencies": { "@commander-js/extra-typings": "^14.0.0", "commander": "^14.0.1" }, "peerDependencies": { "typescript": "^5" }, "bin": { "ollie": "src/cli.ts" } }, "wsxiaoys-ollie-063bb27"],
+    "@getollie/cli": ["@getollie/cli@github:wsxiaoys/ollie#515d8a2", { "dependencies": { "@commander-js/extra-typings": "^14.0.0", "commander": "^14.0.1" }, "peerDependencies": { "typescript": "^5" }, "bin": { "ollie": "src/cli.ts" } }, "wsxiaoys-ollie-515d8a2"],
 
     "@humanfs/core": ["@humanfs/core@0.19.1", "", {}, "sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA=="],
 
