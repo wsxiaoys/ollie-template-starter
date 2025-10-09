@@ -1,0 +1,37 @@
+{
+  "$schema": "https://getpochi.com/config.schema.json",
+  "mcp": {
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "@getollie/chrome-devtools-mcp@latest",
+        "--isolated",
+        "--headless",
+        "--viewport",
+        "1920x1080",
+        "--",
+        "--no-sandbox",
+        "--disable-setuid-sandbox"
+      ],
+      "disabledTools": [
+        "performance_stop_trace",
+        "performance_start_trace",
+        "performance_analyze_insight",
+        "resize_page",
+        "navigate_page_history",
+        "handle_dialog",
+        "emulate_cpu",
+        "emulate_network",
+        "fill",
+        "drag",
+        "fill_form",
+        "upload_file",
+        "get_network_request",
+        "list_network_requests",
+        "hover",
+        "take_snapshot"
+      ],
+      "disabled": false
+    }
+  }
+}

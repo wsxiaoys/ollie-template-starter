@@ -37,7 +37,6 @@
     "globals": "^16.4.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.45.0",
-    "vite": "^7.1.7",
-    "@getollie/cli": "https://github.com/wsxiaoys/ollie.git"
+    "vite": "^7.1.7"
   }
 }

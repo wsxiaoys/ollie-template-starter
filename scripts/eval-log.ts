@@ -7,12 +7,10 @@ import { join } from "path";
 import { runOllieEval } from "../autorater";
 
 const program = new Command()
-  .name("run-and-eval")
-  .description("Run pochi and evaluate the result with ollie")
+  .name("eval-log")
+  .description("Run evaluation using App.tsx from an existing log directory")
   .version("1.0.0")
-  .argument("[prompt]", "The prompt to run")
-  .option("-r, --run-only", "Run only the 'run' step (no eval)", false)
-  .option("-e, --eval-only", "Run only the 'eval' step (no run)", false)
+  .argument("<input-log-dir>", "The log directory containing App.tsx to evaluate")
   .option(
     "-m, --model <model>",
     "Override the model to use",
@@ -24,48 +22,54 @@ const program = new Command()
     "3000"
   )
   .option(
-    "-l, --logs-dir <dir>",
-    "Directory to store logs",
-    "logs"
+    "-o, --logs-dir <dir>",
+    "Directory to store new evaluation logs (defaults to input-log-dir/reeval/<timestamp>)"
   )
   .parse(process.argv);
 
 const options = program.opts();
-const prompt = program.args[0];
+const inputLogDir = join(process.cwd(), program.args[0]);
 
-// Validate arguments
-if (!prompt) {
-  console.error("Error: prompt argument is required");
+// Validate input log directory exists
+if (!existsSync(inputLogDir)) {
+  console.error(`Error: Input log directory does not exist: ${inputLogDir}`);
+  process.exit(1);
+}
+
+// Check if App.tsx exists in the input log directory
+const inputAppTsxPath = join(inputLogDir, "App.tsx");
+if (!existsSync(inputAppTsxPath)) {
+  console.error(`Error: App.tsx not found in log directory: ${inputLogDir}`);
+  process.exit(1);
+}
+
+// Try to read prompt from prompt.txt if not provided
+const promptFile = join(inputLogDir, "prompt.txt");
+if (!existsSync(promptFile)) {
+  console.error("Error: prompt argument is required (or provide prompt.txt in log directory)");
   program.help();
 }
+const prompt = await Bun.file(promptFile).text();
 
-// If both runOnly and evalOnly are specified, it's equivalent to running both
-let runOnly = options.runOnly;
-let evalOnly = options.evalOnly;
+// Determine output directory
+const timestamp = new Date().toISOString().replace(/[:.]/g, "-").split("T")[0] + "_" + new Date().toTimeString().split(" ")[0].replace(/:/g, "-");
+const outputLogDir = options.logsDir
+  ? join(process.cwd(), options.logsDir)
+  : join(inputLogDir, `reeval/${timestamp}`);
 
-if (runOnly && evalOnly) {
-  runOnly = false;
-  evalOnly = false;
+// Create output directory
+if (!existsSync(outputLogDir)) {
+  mkdirSync(outputLogDir, { recursive: true });
 }
 
-// If neither runOnly nor evalOnly is specified, run both by default
-const runStep = runOnly || (!runOnly && !evalOnly);
-const evalStep = evalOnly || (!runOnly && !evalOnly);
-
-const logsDir = join(process.cwd(), options.logsDir);
-const devServerLogPath = join(logsDir, "dev-server.log");
-const pochiLogPath = join(logsDir, "pochi.log");
-const ollieInstructionPath = join(logsDir, "ollie-instruction.md");
-const ollieLogPath = join(logsDir, "ollie.log");
-const completionOutputPath = join(logsDir, "output.json");
-const screenshotPath = join(logsDir, "screenshot.jpg");
+const devServerLogPath = join(outputLogDir, "dev-server.log");
+const ollieInstructionPath = join(outputLogDir, "ollie-instruction.md");
+const ollieLogPath = join(outputLogDir, "ollie.log");
+const completionOutputPath = join(outputLogDir, "output.json");
+const screenshotPath = join(outputLogDir, "screenshot.jpg");
 const appTsxPath = join(process.cwd(), "src", "App.tsx");
-const appTsxCopyPath = join(logsDir, "App.tsx");
-const promptFilePath = join(logsDir, "prompt.txt");
-
-if (!existsSync(logsDir)) {
-  mkdirSync(logsDir, { recursive: true });
-}
+const appTsxCopyPath = join(outputLogDir, "App.tsx");
+const promptFilePath = join(outputLogDir, "prompt.txt");
 
 let devServerProcess: Subprocess | null = null;
 
@@ -95,10 +99,6 @@ const handleSignal = (signal: NodeJS.Signals) => {
 
 process.on("SIGINT", () => handleSignal("SIGINT"));
 process.on("SIGTERM", () => handleSignal("SIGTERM"));
-
-const run = async (): Promise<void> => {
-  await $`pochi -p ${prompt!} --model ${options.model} --no-mcp --stream-json > ${pochiLogPath}`;
-};
 
 const processOllieLog = async (ollieLogPath: string): Promise<void> => {
   try {
@@ -159,7 +159,7 @@ const processOllieScreenshot = async (
 };
 
 const evalCommand = async (): Promise<void> => {
-  $`echo Starting dev server... 2>&1`
+  console.log("Starting dev server...");
   devServerProcess = Bun.spawn({
     cmd: ["bun", "dev", "--port", options.port],
     cwd: process.cwd(),
@@ -167,12 +167,12 @@ const evalCommand = async (): Promise<void> => {
     stderr: Bun.file(devServerLogPath),
   });
 
-  $`echo Starting ollie evaluation... 2>&1`
+  console.log("Starting ollie evaluation...");
 
   await runOllieEval({
     url: `http://localhost:${options.port}`,
     dir: process.cwd(),
-    question: prompt,
+    question: prompt!,
     logInstructions: ollieInstructionPath,
     outputFile: ollieLogPath,
   }, ["--model", options.model, "--stream-json"]);
@@ -180,24 +180,23 @@ const evalCommand = async (): Promise<void> => {
 
 const main = async (): Promise<void> => {
   try {
-    // Save prompt to logs directory
+    // Copy App.tsx from input log dir to src/App.tsx
+    console.log(`Copying App.tsx from ${inputLogDir} to ${appTsxPath}`);
+    copyFileSync(inputAppTsxPath, appTsxPath);
+
+    // Save prompt to output directory
     await Bun.write(Bun.file(promptFilePath), prompt!);
 
-    if (runStep) {
-      await run();
-    }
+    // Copy App.tsx to output directory as well
+    copyFileSync(appTsxPath, appTsxCopyPath);
 
-    if (evalStep) {
-      await evalCommand();
-      await processOllieLog(ollieLogPath);
-      await processOllieScreenshot(ollieLogPath)
-    }
+    // Run evaluation
+    await evalCommand();
+    await processOllieLog(ollieLogPath);
+    await processOllieScreenshot(ollieLogPath);
 
-    // Copy App.tsx to logs directory
-    if (existsSync(appTsxPath)) {
-      copyFileSync(appTsxPath, appTsxCopyPath);
-      console.log(`Copied App.tsx to ${appTsxCopyPath}`);
-    }
+    console.log(`\nEvaluation complete!`);
+    console.log(`Results saved to: ${outputLogDir}`);
 
   } catch (error) {
     console.error("Error:", error);
@@ -208,3 +207,4 @@ const main = async (): Promise<void> => {
 };
 
 await main();
+
