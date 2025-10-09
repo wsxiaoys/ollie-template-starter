@@ -40,7 +40,12 @@ run_k 'Visualize a DNA helix in 3D.' dna-helix-3d 3
 run_k 'Create an interactive 3D product viewer.' product-viewer-3d 3
 }
 
+run3() {
+run_k 'build a bottom navigation bar in style of glass with light breaking ans refraction' glass-nav 3
+}
+
 
 mkdir -p $LOG_DIR
-# run1 &>> $LOG_DIR/run-batch.log
-run2 &>> $LOG_DIR/run-batch.log
+# run1 &> $LOG_DIR/run-batch.log
+# run2 &> $LOG_DIR/run-batch.log
+run3 > $LOG_DIR/run-batch.log
