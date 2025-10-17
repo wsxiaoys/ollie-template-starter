@@ -2,13 +2,11 @@
   "$schema": "https://getpochi.com/config.schema.json",
   "mcp": {
     "chrome-devtools": {
-      "command": "npx",
+      "command": "bunx",
       "args": [
-        "@getollie/chrome-devtools-mcp@latest",
+        "@getollie/chrome-devtools-mcp@0.6.2",
         "--isolated",
         "--headless",
-        "--viewport",
-        "1920x1080",
         "--",
         "--no-sandbox",
         "--disable-setuid-sandbox"
@@ -27,7 +25,6 @@
         "fill_form",
         "upload_file",
         "get_network_request",
-        "list_network_requests",
         "hover",
         "take_snapshot"
       ],

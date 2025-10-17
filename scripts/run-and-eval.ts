@@ -147,7 +147,7 @@ const processOllieScreenshot = async (
         const screenshotData = screenshotPart?.output?.content?.[1]?.data;
 
         if (screenshotData) {
-          const image = Buffer.from(screenshotData, "base64");
+          const image = Buffer.from(screenshotData.replace(/data:image\/(png|jpeg);base64,/, ""), "base64");
           await Bun.write(Bun.file(screenshotPath), image);
           break;
         }
